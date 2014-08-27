@@ -1,0 +1,7 @@
+# Idea
+.idea
+
+# Tools
+settings.properties
+*.content.xml
+ums-output.log

@@ -1,0 +1,47 @@
+<project name="MyProject" default="all" basedir=".">
+  <description>
+      Update settings.properties with real data
+  </description>
+  <property file="settings.properties"/>
+  <property name="content" value="${project.name}.content.tpl.xml"/>
+  <property name="content-new" value="${project.name}.content.xml"/>
+  <property name="ums-url" value="https://xml.fagms.net/cgi-bin/xmlinterface/"/>
+  <property name="ums-output" value="ums-output.log"/>
+  
+  <target name="replace-content-template" depends="copy-content-template">
+    <echo>debug-content</echo>
+    <replace
+        file="${content-new}"
+        summary="true" 
+        replacefilterfile="settings.properties"
+      />
+  </target>
+
+  <target name="copy-content-template">
+    <echo>copy-content-template</echo>
+    <copy file="${content}" tofile="${content-new}" overwrite="true" verbose="true"/>
+  </target>
+
+  <target name="post-content">
+    <echo>post-content</echo>
+    <post-file file="${content-new}" url="${ums-url}" />
+  </target>
+
+  <target name="all" depends="copy-content-template,replace-content-template,post-content" />
+
+
+
+  <macrodef name="post-file" description="Post file to UMS">
+    <attribute name="file" />
+    <attribute name="url" />
+
+    <sequential>
+      <echo>Using CURL to upload @{file} to @{url}</echo>
+      <exec executable="curl" output="${ums-output}">
+          <arg value="-F" />
+          <arg value="import=@@@{file}" />
+        <arg value="@{url}" />
+      </exec>
+    </sequential>
+  </macrodef>
+</project>
